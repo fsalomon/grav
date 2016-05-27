@@ -323,17 +323,8 @@ class Grav extends Container
 
             if (!$success) {
                 // Unfortunately without FastCGI there is no way to close the connection. We need to ask browser to
-                // close the connection for us.
-
-                if ($this['config']->get('system.cache.gzip')) {
-                    // Flush gzhandler buffer if gzip setting was enabled.
-                    ob_end_flush();
-
-                } else {
-                    // Without gzip we have no other choice than to prevent server from compressing the output.
-                    // This action turns off mod_deflate which would prevent us from closing the connection.
-                    header('Content-Encoding: none');
-                }
+                // close the all the buffers manually
+                Utils::flushBuffers();
 
                 // Get length and close the connection.
                 header('Content-Length: ' . ob_get_length());
@@ -348,6 +339,8 @@ class Grav extends Container
 
         // Run any time consuming tasks.
         $this->fireEvent('onShutdown');
+
+        sleep(5);
     }
 
     /**
